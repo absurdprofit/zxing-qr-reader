@@ -1,6 +1,6 @@
 {
   "name": "zxing-qr-reader",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "QR code reader based on ZXing C++ port by @nu-book compiled to wasm.",
   "main": "./reader.js",
   "types": "./**.d.ts",

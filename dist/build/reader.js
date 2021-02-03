@@ -125,7 +125,7 @@ var QrReader = /** @class */ (function (_super) {
                         _c.label = 1;
                     case 1:
                         _c.trys.push([1, 5, , 6]);
-                        if (!!this._stream.getTracks().length) return [3 /*break*/, 3];
+                        if (!!this._is_scanning) return [3 /*break*/, 3];
                         _b = this;
                         return [4 /*yield*/, navigator.mediaDevices.getUserMedia({
                                 video: {

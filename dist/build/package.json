@@ -1,0 +1,21 @@
+{
+  "name": "zxing-qr-reader",
+  "version": "1.0.3",
+  "description": "QR code reader based on ZXing C++ port by @nu-book compiled to wasm.",
+  "main": "./reader.js",
+  "types": "./**.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "qr-reader-react",
+    "zxing",
+    "zxing-qr-reader"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nxtexe/zxing-qr-reader.git"
+  },
+  "author": "nxte",
+  "license": "Apache-2.0"
+}

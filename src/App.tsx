@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import {QrReader} from './dist/build/reader/reader';
-import { IResult } from './dist/build/common/zxing';
+import {QrReader} from 'zxing-qr-reader/reader';
+import {IResult} from 'zxing-qr-reader/zxing';
 
 class App extends React.Component {
   state = {

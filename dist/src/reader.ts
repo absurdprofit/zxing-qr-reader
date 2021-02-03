@@ -1,4 +1,4 @@
-import {ZXing, IResult, Result} from '../common/zxing';
+import {ZXing, IResult, Result} from './zxing';
 
 export class QrReader extends ZXing {
     private _output_render_context : CanvasRenderingContext2D;
@@ -22,10 +22,12 @@ export class QrReader extends ZXing {
             const start : number = Date.now();
             const result : IResult = await this.readBarCodeData(data, this._output_render_context.canvas.width, this._output_render_context.canvas.height);     
             const end : number = Date.now();
-            this._callbacks.found({
-                ...result,
-                profile_info: `${(end-start).toFixed(2)}ms / ${(1/((end-start)/1000)).toFixed(2)}fps`
-            });
+            if (result.text.length) {
+                this._callbacks.found({
+                    ...result,
+                    profile_info: `${(end-start).toFixed(2)}ms / ${(1/((end-start)/1000)).toFixed(2)}fps`
+                });
+            }
         }
 
         if (this._is_scanning) {

@@ -1,4 +1,4 @@
-import { ZXing, IResult } from '../common/zxing';
+import { ZXing, IResult } from './zxing';
 export declare class QrReader extends ZXing {
     private _output_render_context;
     private _video;

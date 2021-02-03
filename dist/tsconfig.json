@@ -22,6 +22,6 @@
     "declaration": true
   },
   "include": [
-    "./src/**/**.ts"
+    "./src/*"
 , "rollup.config.js"  ],
 }

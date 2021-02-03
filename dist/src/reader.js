@@ -1,4 +1,3 @@
-import { ZXing, Result } from '../common/zxing';
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -59,7 +58,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-
+import { ZXing, Result } from './zxing';
 var QrReader = /** @class */ (function (_super) {
     __extends(QrReader, _super);
     function QrReader(context) {

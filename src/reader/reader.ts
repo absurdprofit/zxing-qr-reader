@@ -1,4 +1,4 @@
-import {ZXing, IResult, Result} from './zxing';
+import {ZXing, IResult, Result} from '../common/zxing';
 
 export class QrReader extends ZXing {
     private _output_render_context : CanvasRenderingContext2D;
@@ -69,7 +69,6 @@ export class QrReader extends ZXing {
                     this._video.srcObject = this._stream;
                     this._video.width = 320;
                     this._video.height = 568;
-                    this._video.playsInline = true;
                     this._video?.play();
                     
                     this._is_scanning = true;
@@ -114,7 +113,7 @@ export class QrReader extends ZXing {
     async readBarCodeFile(file : File) : Promise<IResult>{
         try {
             const file_data = await this._getFileData(file);
-            if (await this._reader) {
+            if (this._reader) {
                 const buffer = this._reader._malloc(file_data.length);
                 this._reader.HEAPU8.set(file_data, buffer);
 
@@ -141,12 +140,13 @@ export class QrReader extends ZXing {
 
     async readBarCodeData(data : Uint8Array, width : number, height : number) : Promise<IResult> {
         try {
-            if (await this._reader) {
+            if (this._reader) {
                 const buffer = this._reader._malloc(data.byteLength);
                 this._reader.HEAPU8.set(data, buffer);
 
                 const result : IResult = await this._reader.readBarcodeFromPixmap(buffer, width, height, true, "QR_CODE");
                 this._reader._free(buffer);
+
 
                 return result
             } else {

@@ -14,7 +14,7 @@ onmessage = (async (e) => {
             const result = zxing_proxy.readBarcodeFromPixmap(buffer, width, height, true, "QR_CODE");
             //zxing_proxy._free(buffer);
 
-            //console.log(result)
+            // console.log(result)
 
             postMessage(result);
         } else {

@@ -1,17 +1,17 @@
 
 import ZXing_cpp from "./zxing_reader";
 
-type Dimension = {
+export type Dimension = {
     x: number;
     y: number;
 }
-interface IPosition {
+export interface IPosition {
     bottomLeft: Dimension;
     bottomRight: Dimension;
     topLeft: Dimension;
     topRight: Dimension;
 }
-interface ICallbacks {
+export interface ICallbacks {
     found?: Function;
     error?: Function;
 }
@@ -19,7 +19,7 @@ enum Eevents {
     found,
     error
 }
-type events = keyof typeof Eevents;
+export type events = keyof typeof Eevents;
 export interface IResult {
     error: string;
     format: string;

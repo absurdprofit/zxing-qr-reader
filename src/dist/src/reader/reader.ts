@@ -50,7 +50,7 @@ export class QrReader extends ZXing {
     public async scan() : Promise<void> {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             try {
-                if (!this._stream.getTracks().length) {
+                if (!this._is_scanning) {
                     this._stream = await navigator.mediaDevices.getUserMedia({
                         video: {
                             width: {

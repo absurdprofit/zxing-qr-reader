@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-.vscode/
+
 /node_modules
 /.pnp
 .pnp.js
@@ -18,6 +18,9 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.vscode/
+package-lock.json
+rollup.config.json
 
 npm-debug.log*
 yarn-debug.log*

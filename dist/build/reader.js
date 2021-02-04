@@ -144,8 +144,6 @@ var QrReader = /** @class */ (function (_super) {
                     case 2:
                         _b._stream = _c.sent();
                         this._video.srcObject = this._stream;
-                        this._video.width = 320;
-                        this._video.height = 568;
                         (_a = this._video) === null || _a === void 0 ? void 0 : _a.play();
                         this._is_scanning = true;
                         this._render();
@@ -175,19 +173,29 @@ var QrReader = /** @class */ (function (_super) {
         });
     };
     QrReader.prototype.stop = function () {
-        if (this._stream) {
-            //stop scanning
-            this._is_scanning = false;
-            //stop camera
-            this._video.pause();
-            this._video.src = "";
-            this._stream.getTracks().forEach(function (track) {
-                track.stop();
-            });
-            //clear canvas to black
-            this._output_render_context.fillStyle = "black";
-            this._output_render_context.fillRect(0, 0, this._output_render_context.canvas.width, this._output_render_context.canvas.height);
-        }
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            if (_this._stream) {
+                //add ended event listener to make method async
+                _this._video.addEventListener('ended', function () {
+                    //clear canvas to black
+                    this._output_render_context.fillStyle = "black";
+                    this._output_render_context.fillRect(0, 0, this._output_render_context.canvas.width, this._output_render_context.canvas.height);
+                    resolve(true);
+                }.bind(_this));
+                //stop scanning
+                _this._is_scanning = false;
+                //stop camera
+                _this._video.pause();
+                _this._video.src = "";
+                _this._stream.getTracks().forEach(function (track) {
+                    track.stop();
+                });
+            }
+            else {
+                reject(false);
+            }
+        });
     };
     QrReader.prototype.readBarCodeFile = function (file) {
         return __awaiter(this, void 0, void 0, function () {

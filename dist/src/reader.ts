@@ -69,8 +69,6 @@ export class QrReader extends ZXing {
                     });
                   
                     this._video.srcObject = this._stream;
-                    this._video.width = 320;
-                    this._video.height = 568;
                     this._video?.play();
                     
                     this._is_scanning = true;
@@ -95,21 +93,31 @@ export class QrReader extends ZXing {
         }
     }
 
-    public stop() : void {
-        if (this._stream) {
-            //stop scanning
-            this._is_scanning = false;
-            //stop camera
-            this._video.pause();
-            this._video.src = "";
-            this._stream.getTracks().forEach(function(track) {
-                track.stop();
-            });
-
-            //clear canvas to black
-            this._output_render_context.fillStyle = "black";
-            this._output_render_context.fillRect(0, 0, this._output_render_context.canvas.width, this._output_render_context.canvas.height);
-        }
+    public stop() : Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (this._stream) {
+                //add ended event listener to make method async
+                this._video.addEventListener('ended', function (this : QrReader) {
+                    //clear canvas to black
+                    this._output_render_context.fillStyle = "black";
+                    this._output_render_context.fillRect(0, 0, this._output_render_context.canvas.width, this._output_render_context.canvas.height);
+                    
+                    resolve(true);
+                }.bind(this));
+                //stop scanning
+                this._is_scanning = false;
+                //stop camera
+                this._video.pause();
+                this._video.src = "";
+                this._stream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+    
+                
+            } else {
+                reject(false);
+            }
+        })
     }
 
     async readBarCodeFile(file : File) : Promise<IResult>{

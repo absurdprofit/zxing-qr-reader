@@ -10,7 +10,7 @@ export declare class QrReader extends ZXing {
     private _read;
     private _render;
     scan(): Promise<void>;
-    stop(): void;
+    stop(): Promise<boolean>;
     readBarCodeFile(file: File): Promise<IResult>;
     readBarCodeData(data: Uint8Array, width: number, height: number): Promise<IResult>;
 }

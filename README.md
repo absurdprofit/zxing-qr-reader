@@ -6,6 +6,9 @@ A QR code reader based on a wasm port of Zebra Crossing library by [@nu-book](ht
 npm install zxing-qr-reader
 ```
 
+## Demo
+You can find the demo [here](https://nxtexe.github.io/zxing-qr-reader/)
+
 ## Usage
 Instantiate the QrReader class by passing a canvas context to the constructor.  
 The way this was designed means you shouldn't need a react project to use it :D.  

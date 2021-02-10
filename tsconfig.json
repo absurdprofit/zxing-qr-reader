@@ -6,6 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "outDir": "./build",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -17,10 +18,10 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react",
+    "declaration": true
   },
   "include": [
-    "src"
-, "rollup.config.js"  ]
+    "./src/*"
+, "rollup.config.js"  ],
 }

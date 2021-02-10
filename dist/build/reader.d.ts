@@ -9,6 +9,7 @@ export declare class QrReader extends ZXing {
     constructor(context: CanvasRenderingContext2D);
     private _read;
     private _render;
+    print(text: string, x: number, y: number, lineHeight: number): void;
     scan(): Promise<void>;
     stop(): Promise<boolean>;
     readBarCodeFile(file: File): Promise<IResult>;

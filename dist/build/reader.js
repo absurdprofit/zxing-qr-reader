@@ -69,6 +69,9 @@ var QrReader = /** @class */ (function (_super) {
         _this._interval_id = 0;
         _this._output_render_context = context;
         _this._video = document.createElement('video');
+        //clear canvas to black
+        _this._output_render_context.fillStyle = "black";
+        _this._output_render_context.fillRect(0, 0, _this._output_render_context.canvas.width, _this._output_render_context.canvas.height);
         return _this;
     }
     QrReader.prototype._read = function () {
@@ -102,8 +105,18 @@ var QrReader = /** @class */ (function (_super) {
     };
     QrReader.prototype._render = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var originalRatios, coverRatio, newImageWidth, newImageHeight, x, y;
             return __generator(this, function (_a) {
-                this._output_render_context.drawImage(this._video, 0, 0);
+                originalRatios = {
+                    width: this._output_render_context.canvas.width / this._video.videoWidth,
+                    height: this._output_render_context.canvas.height / this._video.videoHeight
+                };
+                coverRatio = Math.max(originalRatios.width, originalRatios.height);
+                newImageWidth = this._video.videoWidth * coverRatio;
+                newImageHeight = this._video.videoHeight * coverRatio;
+                x = (this._output_render_context.canvas.width / 2) - (this._video.videoWidth / 2) * coverRatio;
+                y = (this._output_render_context.canvas.height / 2) - (this._video.videoHeight / 2) * coverRatio;
+                this._output_render_context.drawImage(this._video, x, y, newImageWidth, newImageHeight);
                 if (this._is_scanning) {
                     this._anim_id = window.requestAnimationFrame(this._render.bind(this));
                 }
@@ -114,10 +127,34 @@ var QrReader = /** @class */ (function (_super) {
             });
         });
     };
+    QrReader.prototype.print = function (text, x, y, lineHeight) {
+        var maxWidth = this._output_render_context.canvas.getBoundingClientRect().width;
+        var words = text.split(' ');
+        var line = '';
+        //write error message to canvas
+        this._output_render_context.font = "20px Arial";
+        this._output_render_context.fillStyle = "white";
+        this._output_render_context.textAlign = "center";
+        for (var n = 0; n < words.length; n++) {
+            var testLine = line + words[n] + ' ';
+            var metrics = this._output_render_context.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                this._output_render_context.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            }
+            else {
+                line = testLine;
+            }
+        }
+        this._output_render_context.fillText(line, x, y);
+    };
     QrReader.prototype.scan = function () {
-        var _a;
-        return __awaiter(this, void 0, void 0, function () {
-            var _b, e_1;
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var _a, error, e_1, error;
+            var _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -126,7 +163,7 @@ var QrReader = /** @class */ (function (_super) {
                     case 1:
                         _c.trys.push([1, 5, , 6]);
                         if (!!this._is_scanning) return [3 /*break*/, 3];
-                        _b = this;
+                        _a = this;
                         return [4 /*yield*/, navigator.mediaDevices.getUserMedia({
                                 video: {
                                     width: {
@@ -142,17 +179,20 @@ var QrReader = /** @class */ (function (_super) {
                                 }
                             })];
                     case 2:
-                        _b._stream = _c.sent();
+                        _a._stream = _c.sent();
                         this._video.srcObject = this._stream;
-                        (_a = this._video) === null || _a === void 0 ? void 0 : _a.play();
+                        (_b = this._video) === null || _b === void 0 ? void 0 : _b.play();
                         this._is_scanning = true;
                         this._render();
                         this._read();
+                        resolve();
                         return [3 /*break*/, 4];
                     case 3:
+                        error = new Error("Stream already initialised.");
                         if (this._callbacks.error) {
-                            this._callbacks.error(new Error("Stream already initialised."));
+                            this._callbacks.error(error);
                         }
+                        reject(error);
                         _c.label = 4;
                     case 4: return [3 /*break*/, 6];
                     case 5:
@@ -160,29 +200,28 @@ var QrReader = /** @class */ (function (_super) {
                         if (this._callbacks.error) {
                             this._callbacks.error(e_1);
                         }
+                        this.print("Error. Permission denied. Please update browser permissions to access camera.", this._output_render_context.canvas.width / 2, this._output_render_context.canvas.height / 2, 25);
+                        reject(e_1);
                         return [3 /*break*/, 6];
                     case 6: return [3 /*break*/, 8];
                     case 7:
+                        error = new Error("Browser does not support getUserMedia.");
                         if (this._callbacks.error) {
-                            this._callbacks.error(new Error("Browser does not support getUserMedia."));
+                            this._callbacks.error(error);
                         }
+                        //write error message to canvas
+                        this.print("Error. Your browser does not support camera access. Use a modern browser or update your browser.", this._output_render_context.canvas.width / 2, this._output_render_context.canvas.height / 2, 25);
+                        reject(error);
                         _c.label = 8;
                     case 8: return [2 /*return*/];
                 }
             });
-        });
+        }); });
     };
     QrReader.prototype.stop = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (_this._stream) {
-                //add ended event listener to make method async
-                _this._video.addEventListener('ended', function () {
-                    //clear canvas to black
-                    this._output_render_context.fillStyle = "black";
-                    this._output_render_context.fillRect(0, 0, this._output_render_context.canvas.width, this._output_render_context.canvas.height);
-                    resolve(true);
-                }.bind(_this));
                 //stop scanning
                 _this._is_scanning = false;
                 //stop camera
@@ -191,9 +230,13 @@ var QrReader = /** @class */ (function (_super) {
                 _this._stream.getTracks().forEach(function (track) {
                     track.stop();
                 });
+                //clear canvas to black
+                _this._output_render_context.fillStyle = "black";
+                _this._output_render_context.fillRect(0, 0, _this._output_render_context.canvas.width, _this._output_render_context.canvas.height);
+                resolve(true);
             }
             else {
-                reject(false);
+                reject(new Error("Stream was not initialised."));
             }
         });
     };

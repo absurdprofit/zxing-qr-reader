@@ -298,9 +298,9 @@ var ZXing_cpp = (function () {
         function hasPrefix(str, prefix) { return String.prototype.startsWith ? str.startsWith(prefix) : str.indexOf(prefix) === 0; }
         var dataURIPrefix = "data:application/octet-stream;base64,";
         function isDataURI(filename) { return hasPrefix(filename, dataURIPrefix); }
-        var wasmBinaryFile = "zxing_reader.wasm";
+        var wasmBinaryFile = "https://cdn.fyahpay.app/wasm/zxing_reader.wasm";
         if (!isDataURI(wasmBinaryFile)) {
-            wasmBinaryFile = locateFile(wasmBinaryFile);
+            wasmBinaryFile = wasmBinaryFile;
         }
         function getBinary() { try {
             if (wasmBinary) {

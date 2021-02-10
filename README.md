@@ -16,28 +16,28 @@ import { QrReader } from 'zxing-qr-reader';
 
 class App extends React.Component {
 	componentDidMount() {
-    	const canvas = document.getElementById('canvas');//get canvas
-        const context = canvas.getContext('2d');//get canvas context
-        
-        this.qr_reader = new QrReader(context);//instantiate qr reader
-        
-        this.qr_reader.scan();//start scan
-        
-        this.qr_reader.on('found', (result) => {
-        	console.log(result.text); //called when qr code was found
-        });
-    }
+		const canvas = document.getElementById('canvas');//get canvas
+		const context = canvas.getContext('2d');//get canvas context
+
+		this.qr_reader = new QrReader(context);//instantiate qr reader
+
+		this.qr_reader.scan();//start scan
+
+		this.qr_reader.on('found', (result) => {
+			console.log(result.text); //called when qr code was found
+		});
+    	}
     
-    componentWillUnmount() {
-    	this.qr_reader.stop();
-    }
+	componentWillUnmount() {
+		this.qr_reader.stop();
+	}
 	render() {
-    	return (
-        	<div>
-            	<canvas id="canvas" width={480} height={852}></canvas> //480p resolution in portrait on mobile
-            </div>
-        );
-    }
+		return (
+			<div>
+				<canvas id="canvas" width={480} height={852}></canvas> //480p resolution in portrait on mobile
+			</div>
+		);
+	}
 }
 ```
 A cover calculation is done when the image is drawn to the canvas meaning supplying one resolution for mobile devices and one other for desktop devices should suffice.  

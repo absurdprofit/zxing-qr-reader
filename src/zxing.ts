@@ -121,8 +121,4 @@ export abstract class ZXing {
     abstract readBarCode(file: File): Promise<IResult>;
     abstract readBarCode(data: Uint8Array, width: number, height: number): Promise<IResult>;
     abstract readBarCode(data: File | Uint8Array, width?: number, height?: number): Promise<IResult>;
-
-    // abstract readBarCodeFile(file : File) : Promise<IResult>;
-
-    // abstract readBarCodeData(data : Uint8Array, width : number, height : number) : Promise<IResult>;
 }

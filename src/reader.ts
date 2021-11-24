@@ -24,7 +24,7 @@ export class QrReader extends ZXing {
 
         if (data && this._callbacks.found) {
             const start : number = Date.now();
-            const result : IResult = await this.readBarCodeData(data, this._output_render_context.canvas.width, this._output_render_context.canvas.height);     
+            const result : IResult = await this.readBarCode(data, this._output_render_context.canvas.width, this._output_render_context.canvas.height);     
             const end : number = Date.now();
             if (result.text.length) {
                 this._callbacks.found({
@@ -95,7 +95,7 @@ export class QrReader extends ZXing {
           }
         }
         this._output_render_context.fillText(line, x, y);
-      }
+    }
 
     public scan() : Promise<void> {
         return new Promise(async (resolve, reject) => {
@@ -182,17 +182,28 @@ export class QrReader extends ZXing {
         })
     }
 
-    async readBarCodeFile(file : File) : Promise<IResult>{
+    async readBarCode(file: File) : Promise<IResult>;
+    async readBarCode(data : Uint8Array, width : number, height : number) : Promise<IResult>;
+    async readBarCode(data: File | Uint8Array, width?: number, height?: number) {
         try {
-            const file_data = await this._getFileData(file);
+            if (data instanceof File) {
+                data = await this._getFileData(data);
+            }
             if (this._reader) {
-                const buffer = this._reader._malloc(file_data.length);
-                this._reader.HEAPU8.set(file_data, buffer);
+                const buffer = this._reader._malloc(data.length);
+                this._reader.HEAPU8.set(data, buffer);
 
-                const result : IResult = await this._reader.readBarcode(buffer, file_data.length, true, "QR_CODE");
-                this._reader._free(buffer);
-
-                return result
+                
+                if (data instanceof File) {
+                    const result : IResult = await this._reader.readBarcode(buffer, data.length, true, "QR_CODE");
+                    this._reader._free(buffer);
+                    return result;
+                } else if (data instanceof Uint8Array && width && height) {
+                    const result : IResult = await this._reader.readBarcodeFromPixmap(buffer, width, height, true, "QR_CODE");
+                    this._reader._free(buffer);
+                    return result;
+                }
+                
             } else {
                 const error : Error = new Error("Reader isn't initialised.");
                 if (this._callbacks.error) {
@@ -206,35 +217,63 @@ export class QrReader extends ZXing {
                 this._callbacks.error(e)
             }
 
-            return new Result({error: e.message});
+            return new Result({error: (e as Error).message});
         }
     }
 
-    async readBarCodeData(data : Uint8Array, width : number, height : number) : Promise<IResult> {
-        try {
-            if (this._reader) {
-                const buffer = this._reader._malloc(data.byteLength);
-                this._reader.HEAPU8.set(data, buffer);
+    // async readBarCodeFile(file : File) : Promise<IResult>{
+    //     try {
+    //         const file_data = await this._getFileData(file);
+    //         if (this._reader) {
+    //             const buffer = this._reader._malloc(file_data.length);
+    //             this._reader.HEAPU8.set(file_data, buffer);
 
-                const result : IResult = await this._reader.readBarcodeFromPixmap(buffer, width, height, true, "QR_CODE");
-                this._reader._free(buffer);
+    //             const result : IResult = await this._reader.readBarcode(buffer, file_data.length, true, "QR_CODE");
+    //             this._reader._free(buffer);
+
+    //             return result
+    //         } else {
+    //             const error : Error = new Error("Reader isn't initialised.");
+    //             if (this._callbacks.error) {
+    //                 this._callbacks.error(error);
+    //             }
+
+    //             return new Result({error: error.message});
+    //         }
+    //     } catch (e) {
+    //         if (this._callbacks.error) {
+    //             this._callbacks.error(e)
+    //         }
+
+    //         return new Result({error: e.message});
+    //     }
+    // }
+
+    // async readBarCodeData(data : Uint8Array, width : number, height : number) : Promise<IResult> {
+    //     try {
+    //         if (this._reader) {
+    //             const buffer = this._reader._malloc(data.byteLength);
+    //             this._reader.HEAPU8.set(data, buffer);
+
+    //             const result : IResult = await this._reader.readBarcodeFromPixmap(buffer, width, height, true, "QR_CODE");
+    //             this._reader._free(buffer);
 
 
-                return result
-            } else {
-                const error : Error = new Error("Reader isn't initialised.");
-                if (this._callbacks.error) {
-                    this._callbacks.error(error);
-                }
+    //             return result
+    //         } else {
+    //             const error : Error = new Error("Reader isn't initialised.");
+    //             if (this._callbacks.error) {
+    //                 this._callbacks.error(error);
+    //             }
 
-                return new Result({error: error.message});
-            }
-        } catch (e) {
-            if (this._callbacks.error) {
-                this._callbacks.error(e);
-            }
+    //             return new Result({error: error.message});
+    //         }
+    //     } catch (e) {
+    //         if (this._callbacks.error) {
+    //             this._callbacks.error(e);
+    //         }
 
-            return new Result({error: e.message});
-        }
-    }
+    //         return new Result({error: e.message});
+    //     }
+    // }
 }

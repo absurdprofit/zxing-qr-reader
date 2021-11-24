@@ -59,8 +59,16 @@ export class Result implements IResult {
         }
     }
 }
+
+interface Reader {
+    HEAPU8: Uint8Array;
+    _malloc(size_t: number): number;
+    readBarcode(buffer: number, size_t: number, _ :boolean, format: string): Promise<IResult>;
+    readBarcodeFromPixmap(buffer: number, width: number, height: number, _ :boolean, format: string): Promise<IResult>;
+    _free(buffer: number): void;
+}
 export abstract class ZXing {
-    protected _reader : any;
+    protected _reader : Reader | undefined;
     protected _callbacks : ICallbacks = {};
     constructor() {
         this._getReader();
@@ -110,7 +118,11 @@ export abstract class ZXing {
         });
     }
 
-    abstract readBarCodeFile(file : File) : Promise<IResult>;
+    abstract readBarCode(file: File): Promise<IResult>;
+    abstract readBarCode(data: Uint8Array, width: number, height: number): Promise<IResult>;
+    abstract readBarCode(data: File | Uint8Array, width?: number, height?: number): Promise<IResult>;
 
-    abstract readBarCodeData(data : Uint8Array, width : number, height : number) : Promise<IResult>;
+    // abstract readBarCodeFile(file : File) : Promise<IResult>;
+
+    // abstract readBarCodeData(data : Uint8Array, width : number, height : number) : Promise<IResult>;
 }

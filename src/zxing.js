@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +35,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-import ZXing_cpp from "./zxing_reader";
+exports.__esModule = true;
+var zxing_reader_1 = require("./zxing_reader");
 var Eevents;
 (function (Eevents) {
     Eevents[Eevents["found"] = 0] = "found";
@@ -49,7 +51,7 @@ var Result = /** @class */ (function () {
                 bottomRight: { x: 0, y: 0 },
                 bottomLeft: { x: 0, y: 0 },
                 topRight: { x: 0, y: 0 },
-                topLeft: { x: 0, y: 0 },
+                topLeft: { x: 0, y: 0 }
             };
             this.text = result.text ? result.text : '';
             this.profile_info = result.profile_info ? result.profile_info : '';
@@ -61,7 +63,7 @@ var Result = /** @class */ (function () {
                 bottomRight: { x: 0, y: 0 },
                 bottomLeft: { x: 0, y: 0 },
                 topRight: { x: 0, y: 0 },
-                topLeft: { x: 0, y: 0 },
+                topLeft: { x: 0, y: 0 }
             };
             this.text = '';
             this.profile_info = '';
@@ -69,7 +71,7 @@ var Result = /** @class */ (function () {
     }
     return Result;
 }());
-export { Result };
+exports.Result = Result;
 var ZXing = /** @class */ (function () {
     function ZXing() {
         this._callbacks = {};
@@ -97,7 +99,7 @@ var ZXing = /** @class */ (function () {
                     case 1:
                         _b.trys.push([1, 3, , 4]);
                         _a = this;
-                        return [4 /*yield*/, ZXing_cpp()];
+                        return [4 /*yield*/, zxing_reader_1["default"]()];
                     case 2:
                         _a._reader = _b.sent();
                         return [3 /*break*/, 4];
@@ -134,4 +136,4 @@ var ZXing = /** @class */ (function () {
     };
     return ZXing;
 }());
-export { ZXing };
+exports.ZXing = ZXing;

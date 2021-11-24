@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css';
+import './css/App.css';
 import {QrReader} from 'zxing-qr-reader/reader';
 import {IResult} from 'zxing-qr-reader/zxing';
 
@@ -14,13 +14,13 @@ class App extends React.Component {
     const canvas : HTMLCanvasElement = document.getElementById('stream-buffer') as HTMLCanvasElement;
     const context : CanvasRenderingContext2D | null = canvas.getContext('2d');
 
-    const result_p : HTMLParagraphElement = document.getElementById('result') as HTMLParagraphElement;
-    const profile_p : HTMLParagraphElement = document.getElementById('profile-text') as HTMLParagraphElement;
     if (context) {
       const qr_reader = new QrReader(context);
       qr_reader.on('found', (result : IResult) => {
-        result_p.textContent = result.text;
-        profile_p.textContent = result.profile_info;
+        if (window.confirm(`Are you sure you want to open ${result.text}?`)) {
+          const _window  = window.open(result.text, "_blank");
+          _window?.focus();
+        }
       })
       this.setState({...this.state, qr_reader: qr_reader}, () => {
         if (this.state.qr_reader) {
@@ -37,20 +37,14 @@ class App extends React.Component {
   }
 
   render() {
+    const height : number = window.screen.height < 500 && window.screen.height > window.screen.width ? 852 : 480;
     return (
       <div className="App">
         <header className="App-header" style={{justifyContent: 'flex-start'}}>
-          <div id="profile" style={{position: 'absolute', top: 0, right: 0, padding: '15px', backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1000, textAlign: 'left'}}>
-            <p>Performance</p>
-            <p id="profile-text"></p>
+          <div id="canvas-container">
+            <canvas width={480} height={height} id="stream-buffer" />
           </div>
-          <div style={{width: window.screen.width < 600 ? window.screen.width : 600, height: 480, overflow: 'hidden', display: 'flex', justifyContent: 'center'}}>
-            <canvas width="600" height="480" id="stream-buffer" />
-          </div>
-          <div style={{width: '90vw'}}>
-            <p id="result" style={{wordWrap: 'break-word'}}></p>
-          </div>
-          <button onClick={() => {
+          <button id="stop" onClick={() => {
             const qr_reader : QrReader = this.state.qr_reader as unknown as QrReader;
             qr_reader.stop();
           }}>Stop</button>

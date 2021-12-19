@@ -48,7 +48,7 @@ Typically a 600x600 resolution for desktop and 480x852 resolution for mobile doe
 #### QR Code From File
 ```
 const file = e.target.files[0];
-const result = this.qr_reader.readBarCodeFromFile(file);
+const result = this.qr_reader.readBarCode(file);
 ```
 
 #### Error Handling

@@ -1,6 +1,6 @@
 {
-  "short_name": "ZXing-QR-Reader",
-  "name": "ZXing QR Reader Demo",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",

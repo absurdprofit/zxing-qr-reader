@@ -1,27 +1,37 @@
 import React from 'react';
 import './css/App.css';
-import {QrReader} from 'zxing-qr-reader/reader';
-import {IResult} from 'zxing-qr-reader/zxing';
+import QrReader, {IResult} from 'zxing-qr-reader';
 
-class App extends React.Component {
-  state = {
-    file: undefined,
-    qr_reader: undefined
-  }
+interface AppState {
+  file?: File;
+  qr_reader?: QrReader;
+}
 
+class App extends React.Component<any, AppState> {
+  private _found: boolean = false;
+  state: AppState = {}
 
   componentDidMount() {
-    const canvas : HTMLCanvasElement = document.getElementById('stream-buffer') as HTMLCanvasElement;
-    const context : CanvasRenderingContext2D | null = canvas.getContext('2d');
+    const canvas: HTMLCanvasElement = document.getElementById('stream-buffer') as HTMLCanvasElement;
+    const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
 
     if (context) {
       const qr_reader = new QrReader(context);
-      qr_reader.on('found', (result : IResult) => {
+      qr_reader.on('error', (e: Error) => alert(e));
+      qr_reader.on('found', async (result : IResult) => {
+        if (this._found) return;
+        this._found = true;
+        await qr_reader.stop();
+        setTimeout(() => {
+          qr_reader.scan();
+          this._found = false;
+        }, 500);
         if (window.confirm(`Are you sure you want to open ${result.text}?`)) {
           const _window  = window.open(result.text, "_blank");
           _window?.focus();
         }
-      })
+        
+      });
       this.setState({...this.state, qr_reader: qr_reader}, () => {
         if (this.state.qr_reader) {
           qr_reader.scan();
@@ -32,8 +42,9 @@ class App extends React.Component {
   }
 
   componentWillUnmount() {
-    const qr_reader : QrReader = this.state.qr_reader as unknown as QrReader;
-    qr_reader.stop();
+    if (this.state.qr_reader) {
+      this.state.qr_reader.stop();
+    }
   }
 
   render() {
@@ -45,8 +56,8 @@ class App extends React.Component {
             <canvas width={480} height={height} id="stream-buffer" />
           </div>
           <button id="stop" onClick={() => {
-            const qr_reader : QrReader = this.state.qr_reader as unknown as QrReader;
-            qr_reader.stop();
+            if (!this.state.qr_reader) return;
+            this.state.qr_reader.stop();
           }}>Stop</button>
           
         </header>

@@ -1,5 +1,5 @@
 
-import ZXing_cpp from "./zxing_reader";
+import ZXing_cpp, {Reader} from "./zxing_reader";
 
 export type Dimension = {
     x: number;
@@ -11,15 +11,7 @@ export interface IPosition {
     topLeft: Dimension;
     topRight: Dimension;
 }
-export interface ICallbacks {
-    found?: Function;
-    error?: Function;
-}
-enum Eevents {
-    found,
-    error
-}
-export type events = keyof typeof Eevents;
+
 export interface IResult {
     error: string;
     format: string;
@@ -27,6 +19,7 @@ export interface IResult {
     text: string;
     profile_info: string;
 }
+
 export class Result implements IResult {
     public error: string;
     public format: string;
@@ -60,41 +53,19 @@ export class Result implements IResult {
     }
 }
 
-interface Reader {
-    HEAPU8: Uint8Array;
-    _malloc(size_t: number): number;
-    readBarcode(buffer: number, size_t: number, _ :boolean, format: string): Promise<IResult>;
-    readBarcodeFromPixmap(buffer: number, width: number, height: number, _ :boolean, format: string): Promise<IResult>;
-    _free(buffer: number): void;
-}
+
 export abstract class ZXing {
-    protected _reader : Reader | undefined;
-    protected _callbacks : ICallbacks = {};
+    protected static _reader : Reader | undefined;
     constructor() {
         this._getReader();
     }
 
-    public on(event : events, callback : Function) : void {
-        switch(event) {
-            case "found":
-                this._callbacks.found = callback;
-                break;
-            
-            case "error":
-                this._callbacks.error = callback;
-                break;
-        }
-    }
-
     private async _getReader() {
-        const reader_proxy : any = this._reader;
-        if (!reader_proxy) {
+        if (!ZXing._reader) {
             try {
-                this._reader = await ZXing_cpp();
+                ZXing._reader = await ZXing_cpp();
             } catch(e) {
-                if (this._callbacks.error) {
-                    this._callbacks.error(new Error("Reader could not be initialised"));
-                }
+                this.onError(e as Error);
             }
         }
     }
@@ -118,6 +89,7 @@ export abstract class ZXing {
         });
     }
 
+    abstract onError(e: Error): void;
     abstract readBarCode(file: File): Promise<IResult>;
     abstract readBarCode(data: Uint8Array, width: number, height: number): Promise<IResult>;
     abstract readBarCode(data: File | Uint8Array, width?: number, height?: number): Promise<IResult>;

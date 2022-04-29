@@ -6,12 +6,10 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack && python3 ./post_build.py"
+    "build": "webpack && python3 ./post_build.py",
+    "build:dev": "webpack build --mode development && python3 ./post_build.py",
+    "build:prod": "webpack build --mode production && python3 ./post_build.py"
   },
-  "files": [
-    "index.js",
-    "reader.worker.js"
-  ],
   "keywords": [
     "zxing",
     "zxing-qr-reader"

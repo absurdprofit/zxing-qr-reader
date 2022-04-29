@@ -3,12 +3,16 @@ export type {IResult};
 export {ZXing, Result};
 
 export interface ICallbacks {
-    found?: Function;
-    error?: Function;
+    found?: (result: IResult) => void | Function;
+    scan?: Function;
+    error?: (error: string | Error) => void | Function;
+    render?: (context: CanvasRenderingContext2D) => void | Function;
 }
 enum Eevents {
     found,
-    error
+    scan,
+    error,
+    render
 }
 export type events = keyof typeof Eevents;
 
@@ -33,18 +37,19 @@ export default class QrReader {
         this._output_render_context.fillStyle = "black";
         const {width, height} = this._output_render_context.canvas;
         this._output_render_context.fillRect(0, 0, width, height);
-    
-        this._worker = new Worker(new URL('./reader.worker', import.meta.url), {
+
+        this._worker = new Worker(new URL('./reader.worker.ts', import.meta.url), {
             name: "reader.worker",
             type: "module"
         });
-        
+
         this._worker.onmessage = (event: MessageEvent<IResult>) => {
             if (event.data.error && this._callbacks.error) {
                 this._callbacks.error(event.data.error);
                 return;
             }
-            if (this._callbacks.found) this._callbacks.found(event.data);
+            if (this._callbacks.scan) this._callbacks.scan(event.data);
+            if (this._callbacks.found && event.data.text.length) this._callbacks.found(event.data);
         }
 }
 
@@ -80,6 +85,8 @@ export default class QrReader {
 
 
         this._output_render_context.drawImage(this._video, x, y, newImageWidth, newImageHeight);
+
+        if (this._callbacks.render) this._callbacks.render(this._output_render_context);
         
 
         if (this._is_scanning) {
@@ -159,7 +166,7 @@ export default class QrReader {
                     }
                 } catch(e) {
                     if (this._callbacks.error) {
-                        this._callbacks.error(e);
+                        this._callbacks.error(e as Error);
                     }
 
                     
@@ -184,6 +191,7 @@ export default class QrReader {
 
     public stop() : Promise<boolean> {
         return new Promise((resolve, reject) => {
+            this._worker.terminate();
             if (this._stream) {
                 //stop scanning
                 this._is_scanning = false;
@@ -207,11 +215,19 @@ export default class QrReader {
     public on(event : events, callback : Function) : void {
         switch(event) {
             case "found":
-                this._callbacks.found = callback;
+                this._callbacks.found = callback as (result: IResult) => void;
+                break;
+            
+            case "scan":
+                this._callbacks.scan = callback;
                 break;
             
             case "error":
-                this._callbacks.error = callback;
+                this._callbacks.error = callback as (error: string | Error) => void;
+                break;
+            
+            case "render":
+                this._callbacks.render = callback as (context: CanvasRenderingContext2D) => void;
                 break;
         }
     }

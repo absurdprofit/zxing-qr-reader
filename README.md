@@ -7,7 +7,7 @@ npm install zxing-qr-reader
 ```
 
 ## Demo
-You can find the demo [here](https://nxtexe.github.io/zxing-qr-reader/)
+You can find the demo [here](https://qr.nxtetechnologies.com)
 
 ## Usage
 Instantiate the QrReader class by passing a canvas context to the constructor.  

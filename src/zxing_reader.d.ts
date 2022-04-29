@@ -1,3 +1,5 @@
+import { IResult } from "./zxing";
+
 export interface Reader {
     HEAPU8: Uint8Array;
     _malloc(size_t: number): number;

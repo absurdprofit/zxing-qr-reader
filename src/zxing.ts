@@ -12,12 +12,17 @@ export interface IPosition {
     topRight: Dimension;
 }
 
+export interface ProfileInfo {
+    fps: string;
+    mspf: string;
+}
+
 export interface IResult {
     error: string;
     format: string;
     position: IPosition;
     text: string;
-    profile_info: string;
+    profile_info: ProfileInfo;
 }
 
 export class Result implements IResult {
@@ -25,8 +30,8 @@ export class Result implements IResult {
     public format: string;
     public position: IPosition;
     public text: string;
-    public profile_info: string;
-    constructor(result? : {error?: string, format?: string, position?: IPosition, text?: string, profile_info?: string}) {
+    public profile_info: ProfileInfo;
+    constructor(result? : {error?: string, format?: string, position?: IPosition, text?: string, profile_info?: ProfileInfo}) {
         if (result) {
             this.error = result.error ? result.error : '';
             this.format = result.format ? result.format : '';
@@ -37,7 +42,7 @@ export class Result implements IResult {
                 topLeft: {x: 0, y: 0},
             };
             this.text = result.text ? result.text : '';
-            this.profile_info = result.profile_info ? result.profile_info : '';
+            this.profile_info = result.profile_info ? result.profile_info : {fps: '', mspf: ''};
         } else {
             this.error = '';
             this.format = '';
@@ -48,7 +53,7 @@ export class Result implements IResult {
                 topLeft: {x: 0, y: 0},
             };
             this.text = '';
-            this.profile_info = '';
+            this.profile_info = {fps: '', mspf: ''};
         }
     }
 }
@@ -74,7 +79,7 @@ export abstract class ZXing {
         return new Promise((resolve, reject) => {
             const file_reader = new FileReader();
 
-            file_reader.onloadend = async (e) => {
+            file_reader.onloadend = async (e: ProgressEvent<FileReader>) => {
                 if (e.target && e.target.result && typeof e.target.result !== 'string') {
                     const file_data = new Uint8Array(e.target.result);
 

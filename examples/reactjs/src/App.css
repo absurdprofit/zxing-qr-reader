@@ -51,7 +51,7 @@
 .chip {
   position: absolute;
   left: 50%;
-  top: 15px;
+  bottom: 15px;
   transform: translateX(-50%);
   background-color: yellow;
   color: black;
@@ -59,13 +59,15 @@
   border-radius: 25px;
   display: flex;
   justify-content: center;
-  padding: 5px;
+  padding: 7px;
   overflow: hidden;
   z-index: 10;
   font-size: 0.7rem;
+  box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.5);
 }
 .chip a {
   color: black!important;
+  font-weight: 500;
 }
 .chip p {
   margin: 0;

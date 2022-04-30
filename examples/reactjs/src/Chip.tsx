@@ -10,7 +10,7 @@ export default function Chip(props: ChipProps) {
             <div className="chip">
                 {
                     (props.content instanceof URL) ?
-                    <a href={props.content.href} target="_blank" rel='noreferer'>{props.content.origin.replace(/http[s]?:\/\//, '')}</a>
+                    <a href={props.content.href} target="_blank" rel='noreferer'>{props.content.origin.replace(/http[s]?:\/\//, '').replace(/^www./, '')}</a>
                     :
                     <p>{props.content}</p>
                 }

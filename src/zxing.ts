@@ -31,7 +31,7 @@ export class Result implements IResult {
     public position: IPosition;
     public text: string;
     public profile_info: ProfileInfo;
-    constructor(result? : {error?: string, format?: string, position?: IPosition, text?: string, profile_info?: ProfileInfo}) {
+    constructor(result?: {error?: string, format?: string, position?: IPosition, text?: string, profile_info?: ProfileInfo}) {
         if (result) {
             this.error = result.error ? result.error : '';
             this.format = result.format ? result.format : '';
@@ -60,7 +60,7 @@ export class Result implements IResult {
 
 
 export abstract class ZXing {
-    protected static _reader : Reader | undefined;
+    protected static _reader: Reader | undefined;
     constructor() {
         this._getReader();
     }
@@ -75,7 +75,7 @@ export abstract class ZXing {
         }
     }
 
-    protected _getFileData(file : File) : Promise<Uint8Array> {
+    protected _getFileData(file: File): Promise<Uint8Array> {
         return new Promise((resolve, reject) => {
             const file_reader = new FileReader();
 
@@ -96,6 +96,6 @@ export abstract class ZXing {
 
     abstract onError(e: Error): void;
     abstract readBarCode(file: File): Promise<IResult>;
-    abstract readBarCode(data: Uint8Array, width: number, height: number): Promise<IResult>;
-    abstract readBarCode(data: File | Uint8Array, width?: number, height?: number): Promise<IResult>;
+    abstract readBarCode(data: Uint8Array, width: number, height: number, bytes_per_element: number): Promise<IResult>;
+    abstract readBarCode(data: File | Uint8Array, width?: number, height?: number, bytes_per_element?: number): Promise<IResult>;
 }

@@ -1,6 +1,5 @@
-import {ZXing, IResult, Result} from './zxing';
+import {IResult} from './zxing';
 export type {IResult};
-export {ZXing, Result};
 
 export interface ICallbacks {
     found?: (result: IResult) => void | Function;
@@ -17,16 +16,16 @@ enum Eevents {
 export type events = keyof typeof Eevents;
 
 export default class QrReader {
-    private _output_render_context : CanvasRenderingContext2D;
-    private _video : HTMLVideoElement;
-    private _stream : MediaStream = new MediaStream();
-    private _is_scanning : boolean = false;
-    private _anim_id : number = 0;
-    private _interval_id : number = 0;
+    private _output_render_context: CanvasRenderingContext2D;
+    private _video: HTMLVideoElement;
+    private _stream: MediaStream = new MediaStream();
+    private _is_scanning: boolean = false;
+    private _anim_id: number = 0;
+    private _interval_id: number = 0;
     private _worker: Worker;
-    private _callbacks : ICallbacks = {};
+    private _callbacks: ICallbacks = {};
 
-    constructor(context : CanvasRenderingContext2D) {
+    constructor(context: CanvasRenderingContext2D) {
         this._output_render_context = context;
         this._video = document.createElement('video') as HTMLVideoElement;
         this._video.playsInline = true;
@@ -97,10 +96,10 @@ export default class QrReader {
         
     }
 
-    public print(text : string, x : number, y : number, lineHeight : number) {
-        const maxWidth : number = this._output_render_context.canvas.getBoundingClientRect().width;
-        let words : string[] = text.split(' ');
-        let line : string = '';
+    public print(text: string, x: number, y: number, lineHeight: number) {
+        const maxWidth: number = this._output_render_context.canvas.getBoundingClientRect().width;
+        let words: string[] = text.split(' ');
+        let line: string = '';
 
         //write error message to canvas
         this._output_render_context.font = "20px Arial";
@@ -108,9 +107,9 @@ export default class QrReader {
         this._output_render_context.textAlign = "center";
 
         for(let n = 0; n < words.length; n++) {
-          let testLine : string = line + words[n] + ' ';
-          let metrics : TextMetrics = this._output_render_context.measureText(testLine);
-          let testWidth : number = metrics.width;
+          let testLine: string = line + words[n] + ' ';
+          let metrics: TextMetrics = this._output_render_context.measureText(testLine);
+          let testWidth: number = metrics.width;
           if (testWidth > maxWidth && n > 0) {
             this._output_render_context.fillText(line, x, y);
             line = words[n] + ' ';
@@ -123,7 +122,8 @@ export default class QrReader {
         this._output_render_context.fillText(line, x, y);
     }
 
-    public scan() : Promise<void> {
+    public scan(): Promise<void> {
+        const aspectRatio = this._output_render_context.canvas.width / this._output_render_context.canvas.height;
         return new Promise(async (resolve, reject) => {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
@@ -131,17 +131,38 @@ export default class QrReader {
                         this._stream = await navigator.mediaDevices.getUserMedia({
                             video: {
                                 width: {
-                                    ideal: this._output_render_context.canvas.width
+                                    max: this._output_render_context.canvas.width
                                 }, 
                                 height: {
-                                    ideal: this._output_render_context.canvas.height
+                                    max: this._output_render_context.canvas.height
                                 },
                                 facingMode: 'environment',
                                 frameRate: {
-                                    ideal: 24
-                                }
+                                    min: 24,
+                                    max: 60
+                                },
+                                aspectRatio: {max: aspectRatio}
                             }
                         });
+
+                        const [track] = this._stream.getVideoTracks();
+                        if ('getCapabilities' in track) {
+                            const capabilities = track.getCapabilities();
+                            const width = Math.min(this._output_render_context.canvas.width, capabilities.width?.max || 0);
+                            const height = Math.min(this._output_render_context.canvas.height, capabilities.height?.max || 0);
+                            const frameRate = Math.min(60, capabilities.frameRate?.max || 0);
+                            const constraints: MediaTrackConstraints = {
+                                width: {max: width || this._output_render_context.canvas.width}, 
+                                height: {max: height || this._output_render_context.canvas.height},
+                                facingMode: 'environment',
+                                frameRate: {
+                                    min: 24,
+                                    max: frameRate || 60
+                                },
+                                aspectRatio: aspectRatio
+                            };
+                            await track.applyConstraints(constraints);
+                        }
                       
                         this._video.srcObject = this._stream;
                         this._video.onloadedmetadata = () => {
@@ -157,7 +178,7 @@ export default class QrReader {
                         
     
                     } else {
-                        const error : Error = new Error("Stream already initialised.");
+                        const error: Error = new Error("Stream already initialised.");
                         if (this._callbacks.error) {
                             this._callbacks.error(error);
                         }
@@ -176,7 +197,7 @@ export default class QrReader {
                 }
             
             } else {
-                const error : Error = new Error("Browser does not support getUserMedia.");
+                const error: Error = new Error("Browser does not support getUserMedia.");
                 if (this._callbacks.error) {
                     this._callbacks.error(error);
                 }
@@ -189,7 +210,7 @@ export default class QrReader {
         })
     }
 
-    public stop() : Promise<boolean> {
+    public stop(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this._worker.terminate();
             if (this._stream) {
@@ -212,7 +233,7 @@ export default class QrReader {
         })
     }
 
-    public on(event : events, callback : Function) : void {
+    public on(event: events, callback: Function): void {
         switch(event) {
             case "found":
                 this._callbacks.found = callback as (result: IResult) => void;

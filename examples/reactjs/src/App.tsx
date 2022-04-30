@@ -2,6 +2,7 @@ import React from 'react';
 import QrReader, {IResult} from 'zxing-qr-reader';
 import Chip from './Chip';
 import './App.css';
+import ProfileDisplay from './ProfileDisplay';
 
 interface AppState {
   file?: File;
@@ -18,7 +19,6 @@ class App extends React.Component<any, AppState> {
   state: AppState = {
     fps: '',
     mspf: '',
-    result: undefined
   }
 
   componentDidMount() {
@@ -30,6 +30,7 @@ class App extends React.Component<any, AppState> {
       this.qr_reader.on('error', (e: Error) => alert(e));
       this.qr_reader.on('found', this.onFound);
       this.qr_reader.on('scan', (result: IResult) => {
+        if (process.env.NODE_ENV !== 'development') return;
         const {fps, mspf} = result.profile_info;
         this.setState({fps, mspf});
       });
@@ -43,11 +44,6 @@ class App extends React.Component<any, AppState> {
     if (this.qr_reader) {
       await this.qr_reader.stop();
     }
-  }
-
-  onStop = () => {
-    if (!this.qr_reader) return;
-    this.qr_reader.stop();
   }
 
   onFound = async (result: IResult) => {
@@ -77,19 +73,15 @@ class App extends React.Component<any, AppState> {
   }
 
   render() {
-    const height : number = window.screen.height < 500 && window.screen.height > window.screen.width ? 852 : 480;
+    const height: number = window.screen.width < 500 && window.screen.height > window.screen.width ? 852 : 480;
     return (
       <div className="App">
         <Chip content={this.state.result} />
-        <div className="profile-info">
-          <p>FPS: {this.state.fps}</p>
-          <p>MSPF: {this.state.mspf}</p>
-        </div>
+        <ProfileDisplay fps={this.state.fps || '0'} mspf={this.state.mspf || '0'} />
         <header className="App-header">
           <div id="canvas-container">
             <canvas width={480} height={height} id="stream-buffer" />
           </div>
-          <button id="stop" onClick={this.onStop}>Stop</button>
         </header>
       </div>
     );
